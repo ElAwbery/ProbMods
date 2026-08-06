@@ -77,6 +77,8 @@ load_pluck_file("programs/lessons.pluck");
 
 **Query names must be distinct.** Two queries sharing a name — or sharing a name with a function — makes output unreadable. They're just labels; pick different ones.
 
+Pluck's exactness is about **method, not precision**. It computes probabilities algebraically by summing over the possibility space, rather than estimating them by running the program many times. So there's no sampling error, no variance. But the arithmetic still happens in ordinary 64-bit floats, so representation error remains.
+
 ---
 
 ## Workflow
