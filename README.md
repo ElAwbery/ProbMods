@@ -8,7 +8,7 @@ The primer is a syllabus roadmap for [ProbMods](https://probmods.org), with codi
 
 ProbMods is written for WebPPL, which samples and therefore approximates the distributions it reports. Pluck takes the opposite approach: it compiles a program's random choices into a binary decision diagram and computes distributions **exactly**, wherever the query has finite or lazily bounded support.
 
-That difference is mostly invisible early on but it is important later. An exact answer of `1.1e-13` is the kind of thing sampling wouldn't surface. Conditioning on unlikely observations is the normal case in cognitive modelling, not an edge case. A method that reports zero probability doesn't work for the situations we might care most about. 
+That difference is mostly invisible early on but it is important later. An exact answer of `1.1e^-13` is the kind of thing sampling wouldn't surface. Conditioning on unlikely observations is the normal case in cognitive modelling, not an edge case. A method that reports zero probability doesn't work for the situations we might care most about. 
 
 ## Contents
 
