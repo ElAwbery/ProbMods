@@ -23,3 +23,11 @@ e.g (let c (flip 0.9) and c c c)
 
 - let takes a list of bindings. 
 - Be super careful not to call a random function more than once when you meant to re-use the draw. 
+
+## Lesson 4
+
+Currying: multi-arg functions are actually chains of one-arg functions. (f x y z) is sugar for (((f x) y) z). That's why calling a function with fewer args than it takes returns a function. 
+
+Partial application is a payoff of currying: you can write a function with a building block function without using all of its args. 
+
+Functions are values, but that means that arity mistakes don't error. 
