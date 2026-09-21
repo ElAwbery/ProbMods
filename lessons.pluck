@@ -75,3 +75,29 @@
     (Marginal (and a b))))
 
 
+;; Lesson 4
+
+;; Write a function make-adder that takes a number n and returns a function (via lambda) that adds n to its argument. Build add5 from it and query (add5 10).
+
+(define (make-adder n)
+    (lambda x -> (+ x n)))
+
+(define add5 (make-adder 5))
+
+(query add5-to-10
+    (Marginal (add5 10)))
+
+
+;; Write a function make-biased-coin that takes a probability p and returns a zero-argument function that flips a coin with that bias. (Recall that (lambda -> body) is sugar for a one-argument function over (Unit).) Build two different coins from it, coin-a at 0.2 and coin-b at 0.8, and query each.
+
+(define (make-biased-coin p)
+    (lambda -> (flip p)))
+
+(define coin-a (make-biased-coin 0.2))
+(define coin-b (make-biased-coin 0.8))
+
+(query coin-a-out (Marginal (coin-a)))
+
+(query coin-b-out (Marginal (coin-b)))
+
+;; Predict coin-a-out true 0.2 false 0.8, coin-b-out true 0.8, false 0.2
