@@ -16,12 +16,12 @@ That difference is mostly invisible early on but it is important later. An exact
 
 ```pluck-cheatsheet.md``` Quick reference — forms, arities, gotchas, Claude generated after my sessions
 
-```deliverables/```       Module answers, drafted here rather than in the browser
+```learning points```     My personal quick ref of reminders, not Claude's
 
 
 ## Setup
 
-The primer's setup section assumes Julia and Rust are already installed. If they aren't, that's two prerequisites you need to work through the lessons.
+The primer's setup section assumes Julia and Rust are already installed. If they aren't, that's two prerequisites you need before you can work through the lessons.
 
 ```bash
 # Rust (Pluck's inference engine is a Rust library, compiled locally)
