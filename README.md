@@ -14,11 +14,10 @@ That difference is mostly invisible early on but it is important later. An exact
 
 ```lessons.pluck```       Working file for Learn Pluck by Writing Pluck (Lessons 1–10)
 
-```pluck-cheatsheet.md``` Quick reference — forms, arities, gotchas
+```pluck-cheatsheet.md``` Quick reference — forms, arities, gotchas, Claude generated after my sessions
 
 ```deliverables/```       Module answers, drafted here rather than in the browser
 
-The primer's answer boxes save to browser `localStorage` only. Hence keeping the working docs here.
 
 ## Setup
 
