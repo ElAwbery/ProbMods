@@ -16,7 +16,7 @@ That difference is mostly invisible early on but it is important later. An exact
 
 ```pluck-cheatsheet.md``` Quick reference — forms, arities, gotchas, Claude generated after my sessions
 
-```learning points```     My personal quick ref of reminders, not Claude's
+```learning points```     My personal quick ref for reminders, not Claude's
 
 
 ## Setup
