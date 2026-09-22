@@ -101,3 +101,34 @@
 (query coin-b-out (Marginal (coin-b)))
 
 ;; Predict coin-a-out true 0.2 false 0.8, coin-b-out true 0.8, false 0.2
+
+;; Lesson 5
+
+;;Write a query for the sum of two independent (uniform 1 2 3 4 5 6) dice. Before running, predict the shape. Is every total from 2 to 12 equally likely?
+
+(define dice-1 (uniform 1 2 3 4 5 6))
+(define dice-2 (uniform 1 2 3 4 5 6))
+
+(query add-die (Marginal (+ dice-1 dice-2)))
+
+;; predict two straight lines meeting at a point: 
+;; 2   0.0277777778
+;; 3   0.0555555556
+;; 4   0.1666666667
+;; 5   0.2222222222
+;; 6   0.2777777778
+;; 7   0.3333333333
+;; 8   0.2777777778
+;; 9   0.2222222222
+;; 10  0.1666666667
+;; 11  0.0555555556
+;; 12  0.0277777778
+
+;;Using discrete, model a weighted spinner with three outcomes: 1 at 10%, 2 at 60%, 3 at 30%. Query it. Then write a second query for whether the spinner landed on 2, reusing the same function rather than rewriting the discrete expression. (This is Lesson 3’s point in disguise: you don’t need let here, since each query calling the spinner fresh is intentional, but see if you can say why this setup does not risk the double-sampling bug from Lesson 3.)
+
+(define (spinner) (discrete (1 0.1) (2 0.6) (3 0.3)))
+
+(query spinner-test (Marginal (spinner)))
+(query spinner-test-return (Marginal (nat=? (spinner) 2)))
+
+;; It's not double-sampling because you're calling the spinner twice for two separate queries. The first one checks spinner's weighted distribution, the second one gives you the probability of spinner returning 2. The bug in lesson 3 was when you meant one coin flip used for a combination but you coded for two independent coin flips. 
