@@ -18,8 +18,9 @@ flip is the primitive source of randomness.
 
 ## Lesson 3
 Let is how you get persistent structure in Pluck:
-(let (bindings) body)
-e.g (let c (flip 0.9) and c c c)
+(let (list of bindings) body)
+e.g (let ((c (flip 0.9)))
+        (and c c))
 
 - let takes a list of bindings. 
 - Be super careful not to call a random function more than once when you meant to re-use the draw. 
