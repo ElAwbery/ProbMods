@@ -46,3 +46,9 @@ discrete (discrete (e1 p1) ... (en pn)) chooses from a discrete distribution wit
 Both uniform and discrete work with any expressions including your constructor values, they're not confined to numbers. 
 
 "Query whether the spinner landed on 2" - it's a boolean question. 
+
+## Lesson 6
+
+In Scheme, **cons** is the construct function you call for lists. In Pluck, **Cons** or **Ctor** is a constructor — it builds a tagged value that **match** can later take apart by asking which constructor made it.
+
+Only use Marginal in a query. It doesn't belong inside a function. 

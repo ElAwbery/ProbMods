@@ -132,3 +132,42 @@
 (query spinner-test-return (Marginal (nat=? (spinner) 2)))
 
 ;; It's not double-sampling because you're calling the spinner twice for two separate queries. The first one checks spinner's weighted distribution, the second one gives you the probability of spinner returning 2. The bug in lesson 3 was when you meant one coin flip used for a combination but you coded for two independent coin flips. 
+
+;;Lesson 6
+
+;; Define a type mood with three constructors of your choosing, say Calm, Restless, Drowsy. Write a function that generates a random mood with unequal weights, and a second function that maps each mood to a boolean, for instance “is this a mood where meditation would be difficult right now?” Query the resulting distribution.
+
+(define-type mood (Calm)(Restless)(Drowsy))
+
+(define (random-mood)
+    (discrete ((Calm) 0.5)((Restless) 0.2)((Drowsy) 0.3)))
+
+(define (good-to-meditate m)
+    (match m
+      Calm => (True)
+      Restless => (True)
+      Drowsy => (False)))
+
+(query test-meditate 
+    (Marginal(good-to-meditate(random-mood))))
+
+;; Predict test-meditate True 0.7, False 0.3
+
+;; Write a function same-weather? using constructor=? that checks whether two weather values are the same. Query whether two independently-generated random weathers match. Predict the answer by hand first: P(both Sunny) + P(both Rainy) + P(both Cloudy), using the 0.6/0.2/0.2 weights.
+
+(define-type weather (Sunny)(Rainy)(Cloudy))
+
+(define (make-weather)
+    (discrete ((Sunny) 0.5) ((Rainy) 0.3) ((Cloudy) 0.2)))
+
+(define (same-weather? weather1 weather2)
+    (constructor=? weather1 weather2))
+
+(query same-weather-test
+    (Marginal (same-weather? (make-weather)(make-weather))))
+
+;; Predict P(both Sunny) + P(both Rainy) + P(both Cloudy) = (0.5*0.5) + (0.3*0.3) + (0.2*0.2) = 0.38
+
+;; true 0.38, false 0.62
+
+
