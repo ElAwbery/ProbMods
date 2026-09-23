@@ -52,3 +52,37 @@ Both uniform and discrete work with any expressions including your constructor v
 In Scheme, **cons** is the construct function you call for lists. In Pluck, **Cons** or **Ctor** is a constructor — it builds a tagged value that **match** can later take apart by asking which constructor made it.
 
 Only use Marginal in a query. It doesn't belong inside a function. 
+
+## Lesson 7 
+
+Constructors are the type's alternatives. Instances are the values you build with them. 
+
+So for (define-type weather) 
+
+- the type is weather
+- the constructors are Sunny, Rainy, Cloudy, three type alternatives
+- (Sunny), (Rainy), (Cloudy) are values
+
+list is a type with only two constructors, the nil list and cons which takes any element and a list. 
+
+(define-type list (nil)(cons any list))
+
+map, filter, length, append are recursive functions over lists. 
+
+Remember to separate operators with whitespace. 
+
+## Lesson 8 
+
+Booleans aren't primitives in Pluck, they're constructors
+
+(define-type bool (True) (False))
+
+Careful not to use list as an argument as it shadows the built-in list
+
+Useful: 
+
+(define (empty? l)
+  (match l
+    Nil => (True)
+    Cons x rest => (False)))
+

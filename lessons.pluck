@@ -170,4 +170,37 @@
 
 ;; true 0.38, false 0.62
 
+;; Lesson 7
 
+;; checking my understanding
+
+(define my-list (Cons 1 (Cons 2 (Cons 3 (Cons 4 (Nil))))))
+
+(query (Marginal my-list))
+
+(define (my-length l)
+  (match l
+    Nil => 0
+    Cons x rest => (+ 1 (my-length rest))))
+
+(query length-test (Marginal (my-length my-list)))
+
+;; Write a function random-list that builds a list of random coin flips. At each step, flip a fair coin to decide whether to stop, returning (Nil), or continue, consing a fresh (flip 0.5) result onto a recursively-built rest of the list. This list is unbounded in principle: there is no limit on how long it could get. Write a query that asks only whether the list is empty, its first constructor, not its full length. Then, separately, try querying (my-length (random-list)) and see what happens. Lesson 8 explains the result.
+
+(define (random-list)
+    (if (flip 0.5)
+      (Nil)
+      (Cons (flip 0.5) (random-list))))
+
+(define (empty-list l) 
+    (match l
+      Nil => (True)
+      Cons x rest => (False)))
+
+(query random-list-empty? 
+    (Marginal (empty-list (random-list))))
+
+(query random-list-length-test 
+    (Marginal (my-length (random-list))))
+
+;; StackOverflowError from random-list-length-test query
