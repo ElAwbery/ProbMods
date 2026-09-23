@@ -1,135 +1,209 @@
-# Pluck Quick Reference
+# Pluck — Lessons 1 to 8
 
-Running cheatsheet. New building blocks get appended as each lesson introduces them.
-
-## Session startup
-
-From the `Pluck.jl` folder:
+## Running things
 
 ```
+cd ~/Pluck.jl
 julia
 ```
 ```julia
 using Pkg; Pkg.activate("."); using Pluck
-load_pluck_file("programs/simple_example.pluck");
+load_pluck_file("path/to/lessons.pluck");
 ```
 
-All three parts of that first line are needed **every session**. Without `Pkg.activate(".")`, `using Pluck` won't find the package; without `using Pluck`, you get `UndefVarError: load_pluck_file not defined`.
-
-`Pkg.instantiate()` was one-time — not needed again.
-
-Check `pwd()` if `Pkg.activate(".")` misbehaves. VS Code's terminal opens wherever the editor is, which may not be `Pluck.jl`. Fix with `cd("/Users/Charlie/Pluck.jl")` from inside Julia.
-
-Exit with `exit()` or Ctrl+D.
+The trailing `;` hides Julia's echo. Pluck code goes in the `.pluck` file, never at the `julia>` prompt. Edit, save, re-run the load line — no need to restart Julia.
 
 ---
 
-## Lesson 1 — Values, define, and arithmetic
+## Everything is prefix
 
-| Form | Arity | What it does |
+No infix operators. `(+ 2 3)`, never `2 + 3`.
+
+Arity matters more than usual, because Pluck curries: too few arguments hands back a function instead of raising an error.
+
+| | Arity | |
 |---|---|---|
-| `(define name expr)` | — | Bind a name to a value — `(define x 3)` |
-| `(define (name arg) body)` | — | Define a function of one or more arguments |
-| `+` `-` `*` | 2 | Arithmetic on naturals, prefix only: `(+ 2 3)`. Use nesting: `(+ x (+ x x))` |
-| `nat=?` | 2 | Equality test for naturals: `(nat=? x 6)`. `==` also works, but `nat=?` is what Pluck's standard library uses |
-| `(query name expr)` | 2 | The only way to see a value. Pluck has no `print`. Always ask a query for a distribution, even one with a single point in it. `expr` must be a `Marginal` / `Posterior` / `PosteriorSamples` |
-
-**Check your arities** because Pluck curries everything: supplying too few arguments hands back a function waiting for the rest. So an arity mistake fails silently or confusingly rather than cleanly.
-
-**Reading nested expressions:** Work inside-out. The thing you're asking about is whatever sits outermost inside `Marginal`:
-
-```scheme
-(query nine-check (Marginal (is-six (triple 3))))
-;;                                  └─ 1. triple 3 → 9
-;;                          └─ 2. is-six 9 → false
-;;                 └─ 3. Marginal reports the distribution of that
-;; => false   1.0
-```
-
-`Marginal` always means "the distribution of this expression's value," whether or not anything random happened. A deterministic value is a distribution with one point at probability 1.0.
-
-### Reading the output
-
-Two columns: **value** on the left, **probability** on the right.
-
-```
-false   1.0     ;; the value is `false`, and it's certain
-```
-
-Only outcomes with non-zero probability get a row. There's no `true 0.0` line, because `true` isn't a possible outcome of a deterministic expression that returns `false`. Probabilities always sum to 1 across whatever rows are present.
+| `+` `-` `*` | 2 | `(+ x (+ x x))` for three things |
+| `nat=?` | 2 | equality on naturals |
+| `constructor=?` | 2 | same tag? works on any ADT |
+| `not` | 1 | |
+| `and` | 2 | |
+| `if` | 3 | condition, then, else |
+| `flip` | 1 | |
 
 ---
 
-## Lesson 2 — Randomness
-
-| Form | Arity | What it does |
-|---|---|---|
-| `flip` | 1 | `(flip 0.9)` returns `true` with probability 0.9, `false` otherwise. The **only** primitive source of randomness — `uniform`, `discrete` and `geom` are all built on it |
-| `and` | 2 | Boolean and, prefix like everything else: `(and A B)`. Returns a boolean, so it needs no `if` wrapper |
-| `if` | 3 | `(if condition then else)`. Exactly three arguments |
-
-**Each occurrence of `flip` is a separate coin.** Two written flips means two independent coins:
+## define
 
 ```scheme
-(define (two-coins)
-  (and (flip 0.5) (flip 0.5)))
-
-(query two-coin-flips (Marginal (two-coins)))
-;; => true    0.25
-;;    false   0.75
+(define x 3)                    ;; value — no parens round the name
+(define (double x) (+ x x))     ;; function — parens round name + parameters
+(define (make-weather) ...)     ;; zero-arg function — still parens
 ```
 
-(That's a consequence of writing `flip` twice, not of what `and` does.) 
+Parens go round **the thing being defined**, not the body.
 
-**Only wrap in `if` when the task asks for specific return values.** `lopsided-coin` needed `if` because the task wanted 1 and 0. `two-coins` doesn't, because `and` already returns a boolean.
+The zero-argument case matters: `(define (coin) (flip 0.5))` flips when called. `(define coin (flip 0.5))` flips once at load time and binds the result. Randomness belongs in queries, not defines.
 
-Zero-argument functions are how you delay a flip until the function is called:
-
-```scheme
-(define (coin) (if (flip 0.5) 1 0))   ;; ✓ flip happens when called
-(define coin (if (flip 0.5) 1 0))     ;; ✗ flip happens at definition
-```
-
-`(define (f) body)` is sugar for `(define (f _) body)`, and `(f)` is sugar for `(f (Unit))`. `_` is the conventional name for an ignored argument. Same mechanism behind `(lambda -> ...)` later.
+`(define (f x y) body)` is sugar for `(define f (lambda x y -> body))`. `lambda` makes an unnamed function inline — needed when a function has to *return* a function.
 
 ---
 
-## Gotchas
+## Seeing things
 
-*(running list)*
+No `print`. `(query name (Marginal expr))` is the only way.
 
-**Every new terminal session needs the full setup line** before `load_pluck_file` exists:
+Output is two columns: **value** on the left, **probability** on the right.
 
-```julia
-using Pkg; Pkg.activate("."); using Pluck
+```
+false   1.0
 ```
 
-`UndefVarError: load_pluck_file not defined` means this was skipped. `REPL[1]` in the stacktrace confirms a fresh session.
+Only outcomes with non-zero probability get a row, so a deterministic expression gives one row at 1.0. Row order carries no meaning.
 
-**Trailing `;` suppresses Julia's echo.** Without it, `load_pluck_file` prints your query results *and* a dump of every form it parsed.
+`Marginal` = the distribution of this expression, everything else summed out.
 
-```julia
-load_pluck_file("programs/lessons.pluck");
-```
-
-**Query names must be distinct.** Two queries sharing a name, or sharing a name with a function, makes output unreadable. They're just labels; pick different ones.
-
-**"Expected closing paren" often means wrong arity, not unbalanced brackets.** Check argument numbers before counting brackets.
-
-**Pluck is case-sensitive.** `query`, not `Query`.
-
-**Floating-point noise is normal.** `0.09999999999999998` is `1 - 0.9` in binary. Pluck's exactness is about **method, not precision** — it computes probabilities algebraically by summing over the possibility space, rather than estimating them by running the program many times. So there's no sampling error, no variance. But the arithmetic still happens in ordinary 64-bit floats, so representation error remains.
+Keep `Marginal` out of function bodies. Functions build the model; queries ask things of it.
 
 ---
 
-## Workflow
+## Randomness
 
-Edit `.pluck` file in VS Code → save → re-run `load_pluck_file` in the open Julia session. No need to restart Julia between edits.
+`flip` is the only primitive. `uniform`, `discrete`, `geom` are all built on it.
 
-Definitions accumulate across loads, so if a redefinition behaves strangely, restart Julia for a clean slate.
+```scheme
+(uniform e1 ... en)                 ;; equal weights, any number of options
+(discrete (e1 p1) ... (en pn))      ;; given weights, must sum to 1
+```
 
-VS Code doesn't know `.pluck` — set the language to **Clojure** (bottom-right status bar) for bracket matching. Scheme isn't built in; Clojure is, and `;;` is its comment character too. Use "Configure File Association for '.pluck'" to make it stick.
+Both are **macros** — the compiler expands them into nested flips before runtime. So `discrete`'s probabilities must be literal numbers in the source. `flip` is a real function, so its argument can be computed:
 
-**Finding a function's arity:**
-- the primer's reference section near the front of the PDF
-- Pluck's standard library source in the cloned repo (every function is defined there in plain Pluck)
+```scheme
+(flip (if b 0.2 0.7))                          ;; ✓
+(discrete (x (if b 0.2 0.7)) (y ...))          ;; ✗
+```
+
+Options can be any expression, including your own constructor values.
+
+---
+
+## One draw or several — the Lesson 3 point
+
+**Each written occurrence of a random expression is its own draw.**
+
+```scheme
+(and (flip 0.5) (flip 0.5))        ;; two coins → true 0.25
+(let ((c (flip 0.5))) (and c c))   ;; one coin  → true 0.5
+```
+
+Both run clean. Neither errors. If you meant one coin and wrote two, you get a plausible wrong answer.
+
+`let` is how you write a draw once and use it in several places:
+
+```scheme
+(let ((name expr))     ;; list of bindings — note the two layers of parens
+  body)                ;; body goes INSIDE the let
+```
+
+The commonest bug is closing the `let` before the body.
+
+This matters because real models have something latent generating several observations — one biased coin flipped repeatedly, one urn drawn from three times. `let` is how "one" gets said.
+
+Separate queries are not this bug. The bug needs one answer built from two draws that should have been one.
+
+---
+
+## Types and constructors
+
+```scheme
+(define-type weather (Sunny) (Rainy) (Cloudy))
+(define-type list (Nil) (Cons any list))
+(define-type nat (O) (S nat))
+```
+
+A declaration, not a function. It lists the **alternatives** a type offers.
+
+- `Cons` is a **constructor** — the tag
+- `(Cons 1 (Nil))` is a **value** — tag plus contents
+
+A constructor isn't a function. A function computes and the call disappears; a constructor wraps its arguments and keeps the tag. The tag is what makes the value inspectable later.
+
+`constructor=?` compares tags only, ignoring contents — so it's real equality only for constructors that carry no data, like booleans.
+
+Booleans are an ADT: `(define-type bool (True) (False))`. You write `(True)`, output prints `true`.
+
+**Recursive types have two constructors: one that stops, one that continues.** `Nil`/`Cons`, `O`/`S`. That's what makes unbounded size possible.
+
+---
+
+## match
+
+Takes a value apart by asking which constructor built it.
+
+```scheme
+(match l
+  Nil => 0
+  Cons x rest => (+ 1 (my-length rest)))
+```
+
+`x` and `rest` are your names, bound to what the constructor held. The constructor names are fixed by the type.
+
+Two hard constraints:
+
+- **No `else`.** Every constructor needs its own branch.
+- **Patterns are flat.** `Cons x (Nil)` is illegal — you can't look two levels deep. Use a nested `match` instead.
+
+`match` looks **once**. It's a fork, not a loop.
+
+---
+
+## Recursion over lists
+
+A list is either empty or an element plus a smaller list. So a function over it has two branches, and one of them recurses.
+
+```scheme
+(define (my-length l)
+  (match l
+    Nil => 0
+    Cons x rest => (+ 1 (my-length rest))))
+```
+
+`rest` isn't shortened — it *is* the list that was sitting in the second slot, already one element smaller. Passing it is what makes the recursion terminate: you reach `Nil` eventually, and `Nil` doesn't recurse.
+
+**Consuming vs producing.** `match` takes a list apart; `Cons` puts one together.
+
+```scheme
+(define (random-list)
+  (if (flip 0.5)
+      (Nil)
+      (Cons (flip 0.5) (random-list))))
+```
+
+Nothing is passed in, so there's nothing to match on — the coin decides whether to stop. Zero arguments.
+
+Checking emptiness: match on the tag, don't count.
+
+```scheme
+(define (empty? l)
+  (match l
+    Nil => (True)
+    Cons x rest => (False)))
+```
+
+`(nat=? (length l) 0)` walks the whole list when the first constructor already told you — and laziness makes that worse than merely wasteful.
+
+---
+
+## Errors you have actually hit
+
+**"Expected closing paren" often means wrong arity.** `if` with five arguments reads as a bracket error. Count arguments before brackets.
+
+**Body outside the form.** `(define (f x))` on its own line, body underneath — the `define` closed early. Same shape as the `let` bug. Cursor next to the opening paren; VS Code shows you where it closes.
+
+**`+1` is one token.** Whitespace separates names. `(+ 1 ...)`.
+
+**Passing a function where a value belongs.** `(empty? random-list)` hands over the function; `(empty? (random-list))` calls it first.
+
+**Case-sensitive.** `query`, not `Query`.
+
+**Floating-point noise is normal.** `0.0999999...` is `1 - 0.9` in binary. Pluck's exactness is about method — no sampling error — not infinite precision.
