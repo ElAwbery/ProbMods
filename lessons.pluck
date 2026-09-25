@@ -200,7 +200,81 @@
 (query random-list-empty? 
     (Marginal (empty-list (random-list))))
 
-(query random-list-length-test 
-    (Marginal (my-length (random-list))))
+;;(query random-list-length-test 
+    ;;(Marginal (my-length (random-list))))
 
 ;; StackOverflowError from random-list-length-test query
+
+;; Lesson 8 
+
+;; (Y (lambda rec arg -> body)) is the Y combinator, for building a recursive function without giving it a top-level name
+
+;; Write a fuel-limited random-list, comparing it to Lesson 7’s unfueled version, that stops after at most 4 elements regardless of the coin flips. Query its length distribution.
+
+(define (random-list fuel)
+    (if (nat=? 0 fuel)
+        (Nil)
+        (if (flip 0.5)
+            (Nil)
+            (Cons (flip 0.5) (random-list (- fuel 1))))))
+
+(query stopped-random (Marginal (my-length (random-list 4))))
+
+;; Using the Y combinator, write an anonymous recursive function that sums the naturals from 0 to, but not including, n, without ever giving it a top-level defined name. Bind it locally with let and query it on 5.
+
+(query sum-test
+  (Marginal
+    (let ((sum-below (Y (lambda rec n ->
+                          (if (nat=? n 0)
+                              0
+                              (+ (- n 1) (rec (- n 1))))))))
+      (sum-below 5))))
+
+;; Practice questions:
+;; Bind w to a single (flip 0.7), and both-true? to a function taking two booleans and returning whether both are true. In the body, apply both-true? to w and w.
+
+;; Predict the answer before you run it — this is Lesson 3's point, so think about how many coins exist here.
+
+(query both-true? 
+    (Marginal 
+        (let ((w (flip 0.7))(both-true? (lambda x y -> (and x y))))
+            (both-true? w w))))
+
+;; Predict: both-true? 0.7
+
+;; Bind spin to a function of no arguments that returns (discrete (1 0.5) (2 0.3) (3 0.2)). In the body, call it once.
+
+;; Watch the zero-argument lambda syntax — (lambda -> body), nothing before the arrow. And note why it must be a function rather than a plain value bound to the discrete expression.
+
+(query spin-test
+    (Marginal 
+         (let ((spin (lambda -> (discrete (1 0.5) (2 0.3) (3 0.2)))))
+            (spin))))
+
+;; Bind l to the list (Cons 1 (Cons 2 (Nil))), and first-is-one? to a function that takes a list and returns whether its first element is 1. In the body, apply it to l.
+
+;; That needs match, with both branches. Think about what to return for the empty case.
+
+(query l-test 
+    (Marginal 
+     (let ((l (Cons 1 (Cons 2 (Nil))))
+            (first-is-one (lambda lst -> 
+                (match lst 
+                    Nil => (False)
+                    Cons x rest => (nat=? x 1)))))
+    (first-is-one l))))
+    
+;; Y Combinator practice
+
+;; 1. Bind countdown to a Y-built function that takes n and returns 0 when n reaches 0, otherwise calls itself on n - 1. Apply it to 4.
+
+;; Pointless as a computation — it always returns 0 — which is the idea. Nothing to think about except the mechanism.
+
+(query countdown-test 
+        (Marginal 
+            (let ((countdown (Y (lambda rec n -> 
+                    (if (nat=? n 0) 
+                    0 
+                    (rec (- n 1)))))))
+        (countdown 4))))
+

@@ -25,6 +25,10 @@ e.g (let ((c (flip 0.9)))
 - let takes a list of bindings. 
 - Be super careful not to call a random function more than once when you meant to re-use the draw. 
 
+Let sq be this lambda — then evaluate this body.
+
+(Let ((x bind to this) and (y bind to that)) - then evaluate this body.) 
+
 ## Lesson 4
 
 Currying: multi-arg functions are actually chains of one-arg functions. (f x y z) is sugar for (((f x) y) z). That's why calling a function with fewer args than it takes returns a function. 
@@ -32,6 +36,8 @@ Currying: multi-arg functions are actually chains of one-arg functions. (f x y z
 Partial application is a payoff of currying: you can write a function with a building block function without using all of its args. 
 
 Functions are values, but that means that arity mistakes don't error. 
+
+(lambda arg -> body) is the lambda syntax. (lambda x -> (+ x 1))
 
 ## Lesson 5 
 
@@ -53,8 +59,6 @@ In Scheme, **cons** is the construct function you call for lists. In Pluck, **Co
 
 Only use Marginal in a query. It doesn't belong inside a function. 
 
-## Lesson 7 
-
 Constructors are the type's alternatives. Instances are the values you build with them. 
 
 So for (define-type weather) 
@@ -63,6 +67,8 @@ So for (define-type weather)
 - the constructors are Sunny, Rainy, Cloudy, three type alternatives
 - (Sunny), (Rainy), (Cloudy) are values
 
+## Lesson 7 
+
 list is a type with only two constructors, the nil list and cons which takes any element and a list. 
 
 (define-type list (nil)(cons any list))
@@ -70,8 +76,6 @@ list is a type with only two constructors, the nil list and cons which takes any
 map, filter, length, append are recursive functions over lists. 
 
 Remember to separate operators with whitespace. 
-
-## Lesson 8 
 
 Booleans aren't primitives in Pluck, they're constructors
 
@@ -85,4 +89,14 @@ Useful:
   (match l
     Nil => (True)
     Cons x rest => (False)))
+
+## Lesson 8
+
+Covers recursive define (function refers to itself in its body) and Y Combinator. 
+
+A "fuel parameter" is the name for a reducing counter on a recursive call to give it a stop in case of infinite recursion. 
+
+Use Y combinator (Y (lambda rec arg -> body)) to write a nameless function with parameter rec. Y fills rec. i.e.Y is a function that takes a function (lambda whose first parameter is a self-reference) and returns that lambda with the parameter filled in by the lambda itself — so calling it recurses. 
+
+Reminder: Non-commutative operators -, /, < order matters in prefix. (- a b) is a minus b.
 
